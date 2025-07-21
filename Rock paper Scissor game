@@ -1,1 +1,128 @@
+# logic.py
 
+import random # We need this to make the computer pick a random choice!
+
+def get_computer_choice():
+    """
+    Makes the computer choose Rock, Paper, or Scissors randomly.
+    """
+    choices = ["Rock", "Paper", "Scissors"]
+    return random.choice(choices) # The computer simply picks one from the list.
+
+def get_winner(player_choice, computer_choice):
+    """
+    Figures out who wins based on the classic Rock-Paper-Scissors rules.
+    """
+    if player_choice == computer_choice:
+        return "Tie" # If both picked the same, it's a tie!
+    elif (player_choice == "Rock" and computer_choice == "Scissors") or \
+         (player_choice == "Paper" and computer_choice == "Rock") or \
+         (player_choice == "Scissors" and computer_choice == "Paper"):
+        return "Player" # These are the conditions where the player wins.
+    else:
+        return "Computer" # If it's not a tie and the player didn't win, the computer must have!
+# main_gui.py
+
+import tkinter as tk # This brings in our "screen-making toolkit."
+from logic import get_computer_choice, get_winner # We're importing the "game rules" we just made!
+
+class RPSGame:
+    # This is like our game's main instruction book. It tells us how to set up the game window.
+
+    def __init__(self, root):
+        # This part runs when the game first starts. It's like unboxing your game console.
+        self.root = root # This 'root' is our main game window.
+        self.root.title("Rock Paper Scissors") # We give our window a name.
+        self.root.geometry("400x500") # We set its size (width x height).
+        self.root.resizable(False, False) # We don't want people resizing our game window.
+
+        # A quick way to show emojis for our choices
+        self.emoji_map = {
+            "Rock": "🪨",
+            "Paper": "📄",
+            "Scissors": "✂️"
+        }
+
+        # Keep track of scores
+        self.player_score = 0
+        self.computer_score = 0
+        self.tie_score = 0
+
+        # --- Setting up the Visuals (Labels and Buttons) ---
+
+        # Game Title at the top
+        tk.Label(root, text="Rock Paper Scissors", font=("Arial", 18, "bold")).pack(pady=10)
+
+        # Scoreboard Display
+        # This label will show "Player: 0 | Computer: 0 | Ties: 0"
+        self.score_label = tk.Label(root, text=self.get_score_text(), font=("Arial", 14))
+        self.score_label.pack(pady=10) # Put it on the screen.
+
+        # Result Message (e.g., "You Win!", "Computer Wins!")
+        # This label will tell us who won the last round.
+        self.result_label = tk.Label(root, text="", font=("Arial", 14))
+        self.result_label.pack(pady=10) # Put it on the screen.
+
+        # Player's Choice Display (with emoji)
+        # This will show "You: 🪨" after you make a choice.
+        self.player_choice_label = tk.Label(root, text="", font=("Arial", 40))
+        self.player_choice_label.pack(pady=5) # Put it on the screen.
+
+        # Computer's Choice Display (with emoji)
+        # This will show "Computer: ✂️" after the computer makes a choice.
+        self.computer_choice_label = tk.Label(root, text="", font=("Arial", 40))
+        self.computer_choice_label.pack(pady=5) # Put it on the screen.
+
+        # Game Buttons (Rock, Paper, Scissors)
+        # We loop through our options and create a button for each.
+        for choice in ["Rock", "Paper", "Scissors"]:
+            btn = tk.Button(
+                root,
+                text=choice, # Text on the button (e.g., "Rock")
+                font=("Arial", 12),
+                width=15,
+                command=lambda c=choice: self.play(c) # When clicked, run our 'play' function with this choice.
+            )
+            btn.pack(pady=5) # Put the button on the screen.
+
+    # --- Game Logic Functions (What happens during the game) ---
+
+    def get_score_text(self):
+        """
+        Creates the text for the scoreboard (e.g., "Player: 5 | Computer: 3 | Ties: 2").
+        """
+        return f"Player: {self.player_score} | Computer: {self.computer_score} | Ties: {self.tie_score}"
+
+    def play(self, player_choice):
+        """
+        This function runs every time you click a Rock, Paper, or Scissors button.
+        It plays one round of the game.
+        """
+        player_choice = player_choice.capitalize() # Just makes sure it's "Rock", "Paper", "Scissors" (capitalized).
+        computer_choice = get_computer_choice() # Ask our 'logic' file to get the computer's choice.
+
+        winner = get_winner(player_choice, computer_choice) # Ask our 'logic' file to tell us who won.
+
+        # Update the scores based on the winner
+        if winner == "Player":
+            self.player_score += 1
+            result_message = "You Win! 🎉" # Add a little emoji for fun!
+        elif winner == "Computer":
+            self.computer_score += 1
+            result_message = "Computer Wins! 🤖"
+        else: # It must be a "Tie"
+            self.tie_score += 1
+            result_message = "It's a Tie! 🤝"
+
+        # --- Update the Screen with New Information ---
+        self.result_label.config(text=result_message) # Show the win/lose/tie message.
+        self.score_label.config(text=self.get_score_text()) # Update the score display.
+        self.player_choice_label.config(text=f"You: {self.emoji_map[player_choice]}") # Show your choice emoji.
+        self.computer_choice_label.config(text=f"Computer: {self.emoji_map[computer_choice]}") # Show computer's choice emoji.
+
+# --- Starting the Game! ---
+if __name__ == "__main__":
+    # This part only runs when you start this 'main_gui.py' file directly.
+    root = tk.Tk() # First, create the main empty window.
+    app = RPSGame(root) # Then, build our game inside that window.
+    root.mainloop() # This starts the game running and keeps the window open until you close it.
